@@ -539,48 +539,90 @@ def show_shop(player):
 
 
 def shop_stage(player):
-    """Allow players to buy multiple class-aligned weapons by number as money allows."""
-    
+    """
+    Allow buying multiple weapons at once!
+    Player can enter: "1 3 5" or "1, 3, 5" or "1 and 3 and 5"
+    """
     print(f"\n{'='*75}")
     print(f"🛒 SHOP - {player.name}'s Turn")
     print(f"💰 Current Gold: {player.gold}")
     print(f"💎 Essence Collected: {player.essence_collected}")
     print(f"{'='*75}")
     
-    while player.gold >= 70:  # Minimum weapon price
+    while True:
         weapons = shop_weapon_choices(player)
+        owned_set = {w.name for w in player.inventory.items if isinstance(w, Weapon)}
         
         print(f"\n💰 You have: {player.gold} gold")
         show_shop(player)
-        print("Enter weapon number to buy, or press Enter to leave the shop.")
+        print("Enter weapon numbers to buy (e.g., 1 3 5) or press Enter to leave.")
         
-        wchoice = input(f"Pick number (1-{len(weapons)}), or <Enter> to exit: ").strip()
+        wchoices = input(f"Pick numbers (1-{len(weapons)}), or <Enter> to exit: ").strip()
         
-        if not wchoice:
+        if not wchoices:
             print("⏭️  Left the shop.")
             break
         
-        if wchoice.isdigit() and 1 <= int(wchoice) <= len(weapons):
-            idx = int(wchoice) - 1
-            weapon = weapons[idx]
+        # Extract numbers from input - handle spaces, commas, and "and"
+        import re
+        nums = re.findall(r'\d+', wchoices)  # Extract all numbers from input
+        
+        if not nums:
+            print(f"❌ Invalid input. Please enter numbers between 1 and {len(weapons)}.")
+            continue
+        
+        # Convert to integers and filter valid range
+        nums = sorted(set([int(n) for n in nums if 1 <= int(n) <= len(weapons)]))
+        
+        if not nums:
+            print(f"❌ Invalid choice. Please pick numbers between 1 and {len(weapons)}.")
+            continue
+        
+        # Try to buy weapons
+        purchases = []
+        total_cost = 0
+        
+        for n in nums:
+            weapon = weapons[n - 1]
             
-            # Check if player already owns this exact weapon
-            already_owned = any(w.name == weapon.name for w in player.inventory.items if isinstance(w, Weapon))
-            if already_owned:
-                print(f"❌ You already own {weapon.name}. Pick a different one.\n")
+            # Skip if already owned
+            if weapon.name in owned_set:
+                print(f"⏭️  {weapon.name} already owned, skipping...")
                 continue
             
-            if player.gold < weapon.price:
-                print(f"❌ Not enough gold! You need {weapon.price}, you have: {player.gold}\n")
+            # Skip if already chosen in this round
+            if any(p.name == weapon.name for p in purchases):
+                print(f"⏭️  {weapon.name} already chosen, skipping...")
                 continue
             
-            result = player.buy_weapon(weapon, weapon.price)
-            print(result)
+            # Check if affordable
+            if total_cost + weapon.price > player.gold:
+                print(f"❌ Not enough gold for {weapon.name}! Need {weapon.price} more gold.")
+                continue
+            
+            # Buy the weapon
+            total_cost += weapon.price
+            purchases.append(weapon)
+            owned_set.add(weapon.name)
+        
+        # Apply all purchases
+        if purchases:
+            player.gold -= total_cost
+            for weapon in purchases:
+                player.inventory.add(weapon)
+            
+            print(f"\n✅ Successfully purchased {len(purchases)} weapon(s) for {total_cost} gold!")
+            for w in purchases:
+                print(f"   ⚔️  {w.name} (+{w.damage} ATK) [{w.passive}]")
+            print(f"💰 Remaining gold: {player.gold}\n")
         else:
-            print(f"❌ Invalid choice. Please pick a number between 1 and {len(weapons)}.\n")
-    
-    if player.gold < 70:
-        print(f"\n⏳ Not enough gold to buy more weapons. Remaining: {player.gold}")
+            print("❌ No weapons purchased in this round.\n")
+        
+        # Check if player can afford anything else
+        min_price = min([w.price for w in weapons if w.name not in owned_set], default=9999)
+        if player.gold < min_price:
+            print(f"⏳ Not enough gold to buy more weapons. Remaining: {player.gold}")
+            break
 
 
 def equip_phase(player, tower_gold):
@@ -606,18 +648,24 @@ def equip_phase(player, tower_gold):
     for n in range(equip_limit):
         while True:
             wchoice = input(f"\nSelect weapon #{n+1} (1-{len(owned_weapons)}): ").strip()
-            if wchoice.isdigit():
-                idx = int(wchoice) - 1
-                if 0 <= idx < len(owned_weapons):
-                    if idx in chosen_indices:
-                        print(f"❌ Already chosen! Pick a different weapon.")
-                        continue
-                    chosen_indices.append(idx)
-                    break
-                else:
-                    print(f"❌ Invalid number. Please pick between 1 and {len(owned_weapons)}.")
-            else:
+            
+            # Extract number from input
+            import re
+            match = re.search(r'\d+', wchoice)
+            if not match:
                 print("Please enter a valid number.")
+                continue
+            
+            idx = int(match.group()) - 1
+            
+            if 0 <= idx < len(owned_weapons):
+                if idx in chosen_indices:
+                    print(f"❌ Already chosen! Pick a different weapon.")
+                    continue
+                chosen_indices.append(idx)
+                break
+            else:
+                print(f"❌ Invalid number. Please pick between 1 and {len(owned_weapons)}.")
     
     # Clear previous equipped weapons
     old_equipped_bonus = sum(w.damage for w in player.inventory.equipped_weapons)
@@ -866,7 +914,7 @@ def main():
         if mode == 1:
             print("⚠️  SINGLE PLAYER MODE:")
             print("   - Defeat enemies to earn gold")
-            print("   - Buy new weapons in the shop after each tower")
+            print("   - Buy MULTIPLE weapons at once")
             print("   - Choose 2-3 weapons to equip (based on gold earned)")
             print("   - Equipped weapons stack their ATK bonuses!\n")
         else:
