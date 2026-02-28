@@ -48,7 +48,7 @@ class AttackBehavior(Behavior):  # Inheritance
             dmg = user.attribute.attack.value
             actual = target.take_damage(dmg)
             if hasattr(user, "gold"):
-                user.gold += 10  # Earn 10 gold per hit
+                user.gold += 15  # Earn 15 gold per hit
             return f"{user.name} attacks {target.name} for {actual} damage!"
         return f"{user.name} attacks but there is no target!"
 
@@ -83,11 +83,12 @@ class Weapon(Item): #Inheritance
     Combat weapons - inspired by Mobile Legends
     Each weapon has unique passive effects
     """
-    def __init__(self, name, damage, wtype="Sword", passive=None):
+    def __init__(self, name, damage, wtype="Sword", passive=None, price=100):
         super().__init__(name, damage, wtype)
         self.damage = damage
         self.type = wtype
         self.passive = passive or "None"
+        self.price = price  # Dynamic pricing based on power
     
     def equip(self, user):
         user.attribute.attack.modify(self.damage)
@@ -119,8 +120,8 @@ class Potion(Item): #Inheritance
 
 class Bow(Weapon): #Inheritance
     """Bow weapons for marksmen - extends Weapon"""
-    def __init__(self, name, damage, passive="None"):
-        super().__init__(name, damage, "Bow", passive)
+    def __init__(self, name, damage, passive="None", price=100):
+        super().__init__(name, damage, "Bow", passive, price)
 
 
 class EssenceOrb(Item): #Inheritance
@@ -135,86 +136,85 @@ class EssenceOrb(Item): #Inheritance
 
 
 # ==================== WEAPON DATABASE (Mobile Legends Inspired) ====================
-# Module-level weapon lists (no class variables, no decorators)
 
 SWORDS = [
-    Weapon("Blade of the Six Kings", 55, "Sword", "Lifesteal 10%"),
-    Weapon("Windtalker", 40, "Sword", "Attack Speed +15%"),
-    Weapon("Berserker's Fury", 45, "Sword", "Crit Damage +40%"),
-    Weapon("Rose Gold Meteor", 50, "Sword", "Magic Resist 25%"),
-    Weapon("Scarlet Phantom", 35, "Sword", "Crit Rate +20%"),
-    Weapon("Blade of Despair", 60, "Sword", "Extra DMG to low HP"),
-    Weapon("Golden Staff", 30, "Sword", "Attack Speed +25%"),
-    Weapon("Flying Dagger", 28, "Sword", "Movement Speed"),
-    Weapon("Terror Blade", 48, "Sword", "VS Hero 15%"),
-    Weapon("Great Dragon Sword", 52, "Sword", "AS+10% Lifesteal 8%"),
-    Weapon("Holy Blade", 45, "Sword", "True Damage 20"),
-    Weapon("Wrist Slasher", 32, "Sword", "Bounce Attack"),
+    Weapon("Blade of the Six Kings", 55, "Sword", "Lifesteal 10%", 150),
+    Weapon("Windtalker", 40, "Sword", "Attack Speed +15%", 120),
+    Weapon("Berserker's Fury", 45, "Sword", "Crit Damage +40%", 130),
+    Weapon("Rose Gold Meteor", 50, "Sword", "Magic Resist 25%", 140),
+    Weapon("Scarlet Phantom", 35, "Sword", "Crit Rate +20%", 100),
+    Weapon("Blade of Despair", 60, "Sword", "Extra DMG to low HP", 160),
+    Weapon("Golden Staff", 30, "Sword", "Attack Speed +25%", 90),
+    Weapon("Flying Dagger", 28, "Sword", "Movement Speed", 80),
+    Weapon("Terror Blade", 48, "Sword", "VS Hero 15%", 135),
+    Weapon("Great Dragon Sword", 52, "Sword", "AS+10% Lifesteal 8%", 145),
+    Weapon("Holy Blade", 45, "Sword", "True Damage 20", 130),
+    Weapon("Wrist Slasher", 32, "Sword", "Bounce Attack", 95),
 ]
 
 STAFFS = [
-    Weapon("Starlium Staff", 45, "Staff", "Magic Power +30%"),
-    Weapon("Crystal Orchid", 40, "Staff", "Cooldown 10%"),
-    Weapon("Enchanted Talisman", 35, "Staff", "Mana Regen"),
-    Weapon("Blood Wings", 50, "Staff", "Spell Vamp 15%"),
-    Weapon("Genius Wand", 38, "Staff", "Magic PEN 20"),
-    Weapon("Lightning Truncheon", 42, "Staff", "Burst DMG"),
-    Weapon("Divine Glaive", 48, "Staff", "Magic PEN 35"),
-    Weapon("Clock of Destiny", 35, "Staff", "HP+500"),
-    Weapon("Fleeting Time", 40, "Staff", "Reset Ultimate"),
-    Weapon("Winter Truncheon", 38, "Staff", "Stun Immunity"),
-    Weapon("Glowing Wand", 32, "Staff", "Burn Damage"),
-    Weapon("Staff of the Nine Realms", 55, "Staff", "Ultimate CD-20%"),
+    Weapon("Starlium Staff", 45, "Staff", "Magic Power +30%", 130),
+    Weapon("Crystal Orchid", 40, "Staff", "Cooldown 10%", 120),
+    Weapon("Enchanted Talisman", 35, "Staff", "Mana Regen", 100),
+    Weapon("Blood Wings", 50, "Staff", "Spell Vamp 15%", 140),
+    Weapon("Genius Wand", 38, "Staff", "Magic PEN 20", 115),
+    Weapon("Lightning Truncheon", 42, "Staff", "Burst DMG", 125),
+    Weapon("Divine Glaive", 48, "Staff", "Magic PEN 35", 135),
+    Weapon("Clock of Destiny", 35, "Staff", "HP+500", 100),
+    Weapon("Fleeting Time", 40, "Staff", "Reset Ultimate", 120),
+    Weapon("Winter Truncheon", 38, "Staff", "Stun Immunity", 115),
+    Weapon("Glowing Wand", 32, "Staff", "Burn Damage", 95),
+    Weapon("Staff of the Nine Realms", 55, "Staff", "Ultimate CD-20%", 150),
 ]
 
 DAGGERS = [
-    Weapon("Corrosion Dagger", 25, "Dagger", "Attack Speed +20%"),
-    Weapon("Haas's Claws", 30, "Dagger", "Lifesteal 15%"),
-    Weapon("Blade of Heptaseas", 28, "Dagger", "Jungle DMG 30%"),
-    Weapon("Demon Hunter Sword", 35, "Dagger", "VS Minions +30%"),
-    Weapon("Windblade", 32, "Dagger", "Movement Speed"),
-    Weapon("KillerExecutioner", 38, "Dagger", "Execute Low HP"),
-    Weapon("Bahamut", 35, "Dagger", "AOE Magic DMG"),
-    Weapon("Death Sickle", 30, "Dagger", "Slow Effect"),
-    Weapon("Malefic Roar", 45, "Dagger", "Physical PEN 30"),
-    Weapon("Necklace of Durance", 25, "Dagger", "Healing Reduction 50%"),
+    Weapon("Corrosion Dagger", 25, "Dagger", "Attack Speed +20%", 80),
+    Weapon("Haas's Claws", 30, "Dagger", "Lifesteal 15%", 95),
+    Weapon("Blade of Heptaseas", 28, "Dagger", "Jungle DMG 30%", 90),
+    Weapon("Demon Hunter Sword", 35, "Dagger", "VS Minions +30%", 110),
+    Weapon("Windblade", 32, "Dagger", "Movement Speed", 100),
+    Weapon("KillerExecutioner", 38, "Dagger", "Execute Low HP", 120),
+    Weapon("Bahamut", 35, "Dagger", "AOE Magic DMG", 110),
+    Weapon("Death Sickle", 30, "Dagger", "Slow Effect", 95),
+    Weapon("Malefic Roar", 45, "Dagger", "Physical PEN 30", 135),
+    Weapon("Necklace of Durance", 25, "Dagger", "Healing Reduction 50%", 80),
 ]
 
 MACES = [
-    Weapon("War Axe", 45, "Mace", "Damage +10%"),
-    Weapon("Cursed Helmet", 30, "Mace", "AOE Damage"),
-    Weapon("Bloodlust Axe", 40, "Mace", "Spell Vamp 15%"),
-    Weapon("Malefic Roar", 50, "Mace", "Physical PEN 30"),
-    Weapon("Hunter's Strike", 35, "Mace", "VS Jungle 25%"),
-    Weapon("Brute Force", 42, "Mace", "ATK+DEF 5%"),
-    Weapon("Endless Battle", 38, "Mace", "True Damage"),
-    Weapon("Queen's Wings", 40, "Mace", "Damage Reduction 30%"),
-    Weapon("Radiant Armor", 35, "Mace", "Counter Attack"),
-    Weapon("Athenian Shield", 30, "Mace", "Block 50%"),
+    Weapon("War Axe", 45, "Mace", "Damage +10%", 130),
+    Weapon("Cursed Helmet", 30, "Mace", "AOE Damage", 95),
+    Weapon("Bloodlust Axe", 40, "Mace", "Spell Vamp 15%", 120),
+    Weapon("Malefic Roar", 50, "Mace", "Physical PEN 30", 140),
+    Weapon("Hunter's Strike", 35, "Mace", "VS Jungle 25%", 110),
+    Weapon("Brute Force", 42, "Mace", "ATK+DEF 5%", 125),
+    Weapon("Endless Battle", 38, "Mace", "True Damage", 115),
+    Weapon("Queen's Wings", 40, "Mace", "Damage Reduction 30%", 120),
+    Weapon("Radiant Armor", 35, "Mace", "Counter Attack", 110),
+    Weapon("Athenian Shield", 30, "Mace", "Block 50%", 95),
 ]
 
 SHIELDS = [
-    Weapon("Aegis", 20, "Shield", "HP +500"),
-    Weapon("Dominance Ice", 25, "Shield", "Attack Speed Slow"),
-    Weapon("Antique Cuirass", 30, "Shield", "AOE Defense"),
-    Weapon("Cursed Shield", 25, "Shield", "Reflect DMG"),
-    Weapon("Twilight Armor", 28, "Shield", "VS Marksman 20%"),
-    Weapon("Oracle Armor", 22, "Shield", "Shield Effect +30%"),
-    Weapon("Guardian Plate", 35, "Shield", "VS Mage 25%"),
-    Weapon("Dreadnought Plate", 32, "Shield", "Push Back"),
-    Weapon("Rose's Metal", 26, "Shield", "Lifesteal Reduction"),
-    Weapon("Athena's Shield", 30, "Shield", "Magic Shield"),
+    Weapon("Aegis", 20, "Shield", "HP +500", 70),
+    Weapon("Dominance Ice", 25, "Shield", "Attack Speed Slow", 85),
+    Weapon("Antique Cuirass", 30, "Shield", "AOE Defense", 100),
+    Weapon("Cursed Shield", 25, "Shield", "Reflect DMG", 85),
+    Weapon("Twilight Armor", 28, "Shield", "VS Marksman 20%", 95),
+    Weapon("Oracle Armor", 22, "Shield", "Shield Effect +30%", 75),
+    Weapon("Guardian Plate", 35, "Shield", "VS Mage 25%", 110),
+    Weapon("Dreadnought Plate", 32, "Shield", "Push Back", 105),
+    Weapon("Rose's Metal", 26, "Shield", "Lifesteal Reduction", 90),
+    Weapon("Athena's Shield", 30, "Shield", "Magic Shield", 100),
 ]
 
 BOWS = [
-    Weapon("Swift Crossbow", 45, "Bow", "Attack Speed +20%"),
-    Weapon("Demon's Bane", 50, "Bow", "VS Tank 25%"),
-    Weapon("Windbow", 40, "Bow", "Movement Speed"),
-    Weapon("Golden Arrow", 35, "Bow", "Gold Gain +15%"),
-    Weapon("Arrow of Ice", 42, "Bow", "Slow Effect"),
-    Weapon("Arrow of Death", 55, "Bow", "Execute"),
-    Weapon("Serpent's Maw", 38, "Bow", "Lifedrain"),
-    Weapon("Berserker's Arrow", 48, "Bow", "Crit Rate +25%"),
+    Weapon("Swift Crossbow", 45, "Bow", "Attack Speed +20%", 130),
+    Weapon("Demon's Bane", 50, "Bow", "VS Tank 25%", 140),
+    Weapon("Windbow", 40, "Bow", "Movement Speed", 120),
+    Weapon("Golden Arrow", 35, "Bow", "Gold Gain +15%", 110),
+    Weapon("Arrow of Ice", 42, "Bow", "Slow Effect", 125),
+    Weapon("Arrow of Death", 55, "Bow", "Execute", 150),
+    Weapon("Serpent's Maw", 38, "Bow", "Lifedrain", 115),
+    Weapon("Berserker's Arrow", 48, "Bow", "Crit Rate +25%", 135),
 ]
 
 
@@ -252,42 +252,39 @@ def get_class_weapon_types(player):
 
 
 def shop_weapon_choices(player):
-    """Return the list of all weapons for this hero, guaranteeing at least 1 defense weapon,
-       and if only defense weapons, add at least one matching attack weapon."""
-    allowed_types = get_class_weapon_types(player)  # e.g., ['SWORD']
+    """Return weapons available for purchase based on player's gold."""
+    allowed_types = get_class_weapon_types(player)
     all_weapons = []
     
     # Gather allowed weapons by class type
     for wtype in allowed_types:
         all_weapons.extend(get_weapons_by_type(wtype))
     
-    # Check defense/attack types
-    defense_weapons = [w for w in all_weapons if w.type.upper() in ['SHIELD']]
-    attack_weapons = [w for w in all_weapons if w.type.upper() not in ['SHIELD']]
+    # FILTER BY GOLD TIER
+    if player.gold < 100:
+        filtered = [w for w in all_weapons if w.price <= player.gold + 50]
+    elif player.gold < 250:
+        filtered = [w for w in all_weapons if w.price <= player.gold + 100]
+    else:
+        filtered = all_weapons
     
-    # Guarantee at least 1 defense weapon
+    # If we filtered out everything, show all anyway
+    if not filtered:
+        filtered = all_weapons
+    
+    # Shuffle and limit to 8 options per shop visit
+    random.shuffle(filtered)
+    filtered = filtered[:8]
+    
+    # Always include at least 1 defense weapon
+    defense_weapons = [w for w in filtered if w.type.upper() in ['SHIELD']]
     if not defense_weapons:
-        all_weapons.append(SHIELDS[0])  # add a default shield
-        defense_weapons = [SHIELDS[0]]
+        shield_option = [w for w in all_weapons if w.type.upper() == 'SHIELD' 
+                        and w.price <= player.gold + 100]
+        if shield_option:
+            filtered.append(shield_option[0])
     
-    # If only defense weapons, add at least one attack weapon matching the class
-    if len(attack_weapons) == 0 and len(defense_weapons) > 0:
-        attack_candidate = None
-        if "SWORD" in allowed_types:
-            attack_candidate = SWORDS[0]
-        elif "STAFF" in allowed_types:
-            attack_candidate = STAFFS[0]
-        elif "MACE" in allowed_types:
-            attack_candidate = MACES[0]
-        elif "DAGGER" in allowed_types:
-            attack_candidate = DAGGERS[0]
-        elif "BOW" in allowed_types:
-            attack_candidate = BOWS[0]
-        
-        if attack_candidate and attack_candidate not in all_weapons:
-            all_weapons.append(attack_candidate)
-    
-    return all_weapons
+    return filtered
 
 
 # ==================== ARMOR DATABASE ====================
@@ -307,33 +304,30 @@ ARMORS = [
 ]
 
 class Inventory: #Base Class
-    """Player's equipment and items"""
+    """Player's equipment and items - supports multiple weapons"""
     def __init__(self, size=20):
         self.capacity = size
         self.items = []
-        self.weapon = None
+        self.equipped_weapons = []  # Multiple weapons can be equipped
         self.armor = None
         self.accessory = None
     
     def add(self, item):
         if len(self.items) >= self.capacity:
             return False
-        
-        if isinstance(item, Weapon):
-            self.weapon = item
-        elif isinstance(item, Armor):
-            self.armor = item
-        
         self.items.append(item)
         return True
     
     def equip(self, item, user):
         """Equip an item and apply stats"""
         if isinstance(item, Weapon):
-            if self.weapon:
-                user.attribute.attack.modify(-self.weapon.damage)
-            self.weapon = item
-            return item.equip(user)
+            # Prevent equipping the same weapon twice
+            if any(w.name == item.name for w in self.equipped_weapons):
+                return f"{user.name} already has {item.name} equipped!"
+            
+            self.equipped_weapons.append(item)
+            user.attribute.attack.modify(item.damage)
+            return f"{user.name} equips {item.name} (+{item.damage} ATK) [{item.passive}]"
         elif isinstance(item, Armor):
             if self.armor:
                 user.attribute.defense.modify(-self.armor.defense)
@@ -355,10 +349,12 @@ class Inventory: #Base Class
     
     def show(self):
         print(f"\n=== INVENTORY ({len(self.items)}/{self.capacity}) ===")
-        if self.weapon:
-            print(f"Weapon: {self.weapon.name} (+{self.weapon.damage} ATK)")
+        if self.equipped_weapons:
+            print("⚔️  Equipped Weapons:")
+            for w in self.equipped_weapons:
+                print(f"  ⚔️  {w.name} (+{w.damage} ATK) [{w.passive}]")
         if self.armor:
-            print(f"Armor: {self.armor.name} (+{self.armor.defense} DEF)")
+            print(f"🛡️  Armor: {self.armor.name} (+{self.armor.defense} DEF)")
         if self.accessory:
             print(f"Accessory: {self.accessory.name} (+{self.accessory.hp_bonus} HP)")
         print("Items:")
@@ -409,12 +405,14 @@ class Player(Character): #Inheritance
         self.essence_collected = 0
         self.gold = 0
         self.checkpoint = 1
+        self.base_attack = attack  # Store base attack for recalculation
         
         self.inventory = Inventory() #Composition
         
-        # COMPOSITION: Player HAS-A starting Weapon (only gives base damage, no equip)
+        # COMPOSITION: Player gets free starting weapon and EQUIPS IT IMMEDIATELY
         self.weapon = self._get_class_weapon()
-        # DON'T equip it - player must buy weapons from shop
+        self.inventory.add(self.weapon)
+        self.inventory.equip(self.weapon, self)  # Auto-equip the free starter weapon
     
     def _get_class_weapon(self):
         weapons = {
@@ -425,7 +423,7 @@ class Player(Character): #Inheritance
             "Guardian": ("Aegis Shield", 12, "Shield"),
         }
         w = weapons.get(self.player_class, ("Fists", 10, "None"))
-        return Weapon(w[0], w[1], w[2])
+        return Weapon(w[0], w[1], w[2], price=0)  # Free starter weapon
     
     def equip_item(self, item):
         """Equip item from inventory"""
@@ -443,33 +441,45 @@ class Player(Character): #Inheritance
         
         self.gold -= price
         self.inventory.add(weapon)
-        result = self.inventory.equip(weapon, self)
-        return f"✅ {result}\n   (Purchased for {price} gold. Remaining: {self.gold})"
+        return f"✅ Added {weapon.name} to inventory (+{weapon.damage} ATK [{weapon.passive}])\n   (Purchased for {price} gold. Remaining: {self.gold})"
+
+
+def get_equip_limit(tower_gold):
+    """Determine how many weapons player can equip based on gold earned THIS tower.
+    
+    - Earn 0-149 gold: equip 2 weapons
+    - Earn 150+ gold: equip 3 weapons
+    """
+    if tower_gold >= 150:
+        return 3
+    else:
+        return 2
 
 
 class Enemy(Character): #Inheritance
     """Blighted enemy - twisted by corruption"""
-    def __init__(self, name, health, attack, essence):
+    def __init__(self, name, health, attack, essence, gold_drop=0):
         super().__init__(name, health, attack)
         self.essence_drop = essence
+        self.gold_drop = gold_drop  # Gold dropped when defeated
         self.blight_type = "Minion"
 
 class BlightedMinion(Enemy): #Inheritance
     """Twisted creatures serving the Blight"""
     def __init__(self):
-        super().__init__("Blighted Minion", 40, 12, 5)
+        super().__init__("Blighted Minion", 40, 12, essence=5, gold_drop=20)
 
 
 class JuniorGiant(Enemy): #Inheritance
     """Towering corrupted giants"""
     def __init__(self):
-        super().__init__("Junior Giant", 120, 25, 20)
+        super().__init__("Junior Giant", 120, 25, essence=20, gold_drop=50)
 
 
 class BlightGiant(Enemy): #Inheritance
     """Colossal anchors of darkness"""
     def __init__(self):
-        super().__init__("Blight Giant", 250, 40, 50)
+        super().__init__("Blight Giant", 250, 40, essence=50, gold_drop=100)
 
 
 class Vanguard(Player): #Inheritance
@@ -477,7 +487,7 @@ class Vanguard(Player): #Inheritance
     def __init__(self, name):
         super().__init__(name, 150, 25, "Vanguard")
         self.inventory.add(Armor("Plate Armor", 30))
-        self.inventory.armor.equip(self)
+        self.inventory.equip(Armor("Plate Armor", 30), self)
 
 
 class Weaver(Player): #Inheritance
@@ -507,38 +517,44 @@ class Guardian(Player):  # Inheritance
         super().__init__(name, 200, 15, "Guardian")
         # Add armor for extra defense
         self.inventory.add(Armor("Plate Armor", 30))
-        self.inventory.armor.equip(self)
+        self.inventory.equip(Armor("Plate Armor", 30), self)
 
 
-# ==================== SHOP SYSTEM ====================
+# ==================== SHOP & EQUIP SYSTEM ====================
 def show_shop(player):
-    """Display all weapons in the shop for the player's class - globally numbered."""
+    """Display all weapons in the shop for the player's class"""
     weapons = shop_weapon_choices(player)
-    print("\n" + "="*50)
+    print("\n" + "="*75)
     print(f"⚔️  WEAPON SHOP ({player.player_class})  ⚔️")
-    print("="*50)
+    print(f"💰 Your Gold: {player.gold}")
+    print("="*75)
     for idx, w in enumerate(weapons, 1):
-        print(f"{idx}. {w.name}: {w.damage} ATK [{w.type}] [{w.passive}]")
-    print("="*50)
+        affordable = "✅" if w.price <= player.gold else "❌"
+        owned = any(it.name == w.name for it in player.inventory.items if isinstance(it, Weapon))
+        owned_str = " (Already Owned)" if owned else ""
+        print(f"{idx}. {w.name}")
+        print(f"   └─ {w.damage} ATK [{w.type}] [{w.passive}] {affordable} {w.price} gold{owned_str}")
+    print("="*75)
     return weapons
 
 
 def shop_stage(player):
     """Allow players to buy multiple class-aligned weapons by number as money allows."""
-    price = 100
     
-    print(f"\n{'='*50}")
+    print(f"\n{'='*75}")
     print(f"🛒 SHOP - {player.name}'s Turn")
     print(f"💰 Current Gold: {player.gold}")
     print(f"💎 Essence Collected: {player.essence_collected}")
-    print(f"{'='*50}")
+    print(f"{'='*75}")
     
-    while player.gold >= price:
-        weapons = show_shop(player)
-        print(f"\n💰 Each weapon costs {price} gold. You have: {player.gold}")
+    while player.gold >= 70:  # Minimum weapon price
+        weapons = shop_weapon_choices(player)
+        
+        print(f"\n💰 You have: {player.gold} gold")
+        show_shop(player)
         print("Enter weapon number to buy, or press Enter to leave the shop.")
         
-        wchoice = input(f"Pick number (1-{len(weapons)}), or Enter to exit: ").strip()
+        wchoice = input(f"Pick number (1-{len(weapons)}), or <Enter> to exit: ").strip()
         
         if not wchoice:
             print("⏭️  Left the shop.")
@@ -554,18 +570,75 @@ def shop_stage(player):
                 print(f"❌ You already own {weapon.name}. Pick a different one.\n")
                 continue
             
-            if player.gold < price:
-                print(f"❌ Not enough gold! You need {price}, you have: {player.gold}\n")
+            if player.gold < weapon.price:
+                print(f"❌ Not enough gold! You need {weapon.price}, you have: {player.gold}\n")
                 continue
             
-            result = player.buy_weapon(weapon, price)
+            result = player.buy_weapon(weapon, weapon.price)
             print(result)
         else:
             print(f"❌ Invalid choice. Please pick a number between 1 and {len(weapons)}.\n")
     
-    if player.gold < price:
-        print(f"\n❌ Not enough gold to buy more weapons. Remaining: {player.gold}")
+    if player.gold < 70:
+        print(f"\n⏳ Not enough gold to buy more weapons. Remaining: {player.gold}")
 
+
+def equip_phase(player, tower_gold):
+    """SINGLE PLAYER ONLY: Choose 2-3 weapons to equip from inventory."""
+    equip_limit = get_equip_limit(tower_gold)
+    
+    owned_weapons = [w for w in player.inventory.items if isinstance(w, Weapon)]
+    
+    if not owned_weapons:
+        print("\n⚠️  You don't own any weapons yet!")
+        player.inventory.equipped_weapons = []
+        return
+    
+    print(f"\n{'='*75}")
+    print(f"🛡️  EQUIP PHASE - Choose {equip_limit} weapons for the next battle!")
+    print(f"💰 Gold earned in this tower: {tower_gold}")
+    print(f"{'='*75}")
+    print("\nOwned Weapons:")
+    for idx, w in enumerate(owned_weapons, 1):
+        print(f"{idx}. {w.name} (+{w.damage} ATK) [{w.type}] [{w.passive}]")
+    
+    chosen_indices = []
+    for n in range(equip_limit):
+        while True:
+            wchoice = input(f"\nSelect weapon #{n+1} (1-{len(owned_weapons)}): ").strip()
+            if wchoice.isdigit():
+                idx = int(wchoice) - 1
+                if 0 <= idx < len(owned_weapons):
+                    if idx in chosen_indices:
+                        print(f"❌ Already chosen! Pick a different weapon.")
+                        continue
+                    chosen_indices.append(idx)
+                    break
+                else:
+                    print(f"❌ Invalid number. Please pick between 1 and {len(owned_weapons)}.")
+            else:
+                print("Please enter a valid number.")
+    
+    # Clear previous equipped weapons
+    old_equipped_bonus = sum(w.damage for w in player.inventory.equipped_weapons)
+    player.attribute.attack.modify(-old_equipped_bonus)
+    
+    # Equip new selection and stack bonuses
+    player.inventory.equipped_weapons = []
+    total_bonus = 0
+    for idx in sorted(chosen_indices):
+        weapon = owned_weapons[idx]
+        player.inventory.equipped_weapons.append(weapon)
+        total_bonus += weapon.damage
+    
+    # Apply attack bonus
+    player.attribute.attack.modify(total_bonus)
+    
+    print(f"\n✅ Equipped Weapons:")
+    for w in player.inventory.equipped_weapons:
+        print(f"   ⚔️  {w.name} (+{w.damage} ATK) [{w.passive}]")
+    print(f"\n📊 Total Attack Bonus: +{total_bonus}")
+    print(f"📈 Current Attack: {player.attribute.attack.value}")
 
         
 class CorruptedTower:
@@ -583,6 +656,10 @@ class CorruptedTower:
         if not self.get_alive():
             self.cleared = True
             self.corruption = "Purified"
+    
+    def calculate_tower_gold(self):
+        """Calculate total gold available from enemies in this tower"""
+        return sum(e.gold_drop for e in self.enemies)
 
 
 # ==================== GAME ====================
@@ -647,6 +724,13 @@ class AethermoorGame:
             
             if not alive_e:
                 tower.check_clear()
+                
+                # Award gold from defeated enemies to all players
+                for enemy in tower.enemies:
+                    for player in alive_p:
+                        if hasattr(player, "gold"):
+                            player.gold += enemy.gold_drop
+                
                 if self.multiplayer:
                     self.distribute_essence(tower)
                 self.current_enemy = None
@@ -673,21 +757,31 @@ class AethermoorGame:
             tower = self.towers[self.current_tower]
             
             if not tower.cleared:
-                print(f"\n{'='*50}")
-                print(f"TOWER {tower.number}/20 - {tower.corruption}")
-                print(f"{'='*50}")
+                print(f"\n{'='*75}")
+                print(f"🗼 TOWER {tower.number}/20 - {tower.corruption}")
+                tower_gold = tower.calculate_tower_gold()
+                print(f"💰 Available Gold: {tower_gold} | Enemies: {len(tower.enemies)}")
+                print(f"{'='*75}")
                 
                 result = self.battle_tower(tower)
                 
                 if result:
                     print(f"\n✨ Tower {tower.number} PURIFIED! ✨")
+                    
+                    # Calculate actual gold earned (sum of enemy drops)
+                    actual_gold_earned = tower.calculate_tower_gold()
+                    print(f"💰 Gold earned in this tower: {actual_gold_earned}")
+                    
                     self.current_tower += 1
                     
-                    # ALL MODES: Shop after each tower (single or multiplayer)
+                    # SHOP & EQUIP PHASE - only for single player
                     if self.current_tower < 20:
                         for player in self.players:
                             if player.is_alive:
                                 shop_stage(player)
+                                # SINGLE PLAYER ONLY: Equip phase
+                                if not self.multiplayer:
+                                    equip_phase(player, actual_gold_earned)
                     
                     if self.current_tower == 20:
                         self._victory()
@@ -700,29 +794,35 @@ class AethermoorGame:
                 self.current_tower += 1
     
     def _victory(self):
-        print("\n" + "="*60)
+        print("\n" + "="*75)
         print("🎉 AETHERMOOR IS SAVED! 🎉")
-        print("="*60)
+        print("="*75)
         
         if self.multiplayer:
             sorted_p = sorted(self.players, key=lambda p: p.essence_collected, reverse=True)
             print("\n=== LEADERBOARD ===")
             for i, p in enumerate(sorted_p, 1):
+                weapons_owned = [w.name for w in p.inventory.equipped_weapons]
                 print(f"{i}. {p.name}: {p.essence_collected} Essence | 💰 {p.gold} Gold")
+                print(f"   Equipped: {', '.join(weapons_owned) if weapons_owned else 'None'}")
         else:
             print(f"\n{self.players[0].name} the {self.players[0].player_class}")
             print(f"Total Essence Collected: {self.players[0].essence_collected}")
             print(f"Total Gold Earned: {self.players[0].gold}")
+            weapons_owned = [w.name for w in self.players[0].inventory.equipped_weapons]
+            print(f"Final Equipped Weapons: {', '.join(weapons_owned) if weapons_owned else 'None'}")
+            weapons_in_inventory = [w.name for w in self.players[0].inventory.items if isinstance(w, Weapon)]
+            print(f"Total Weapons Collected: {len(weapons_in_inventory)} - {', '.join(weapons_in_inventory)}")
 
 
 # ==================== MAIN ====================
 def main():
-    print("="*60)
+    print("="*75)
     print("AETHERMOOR'S SALVATION")
     print("Mobile Legends Inspired Equipment System")
-    print("="*60)
+    print("="*75)
     print("The Blight spreads. 20 towers must fall.")
-    print("Collect Essence. Equip legendary weapons. Save Aethermoor.\n")
+    print("Earn gold in battle. Buy legendary weapons. Choose your arsenal.\n")
     
     # Mode selection
     while True:
@@ -755,14 +855,22 @@ def main():
         print("1. Vanguard  2. Weaver  3. Alchemist  4. Rogue  5. Guardian")
         c = input("Class (1-5): ") or "1"
         
-        hero = hero_classes.get(c, Vanguard)
+        hero = hero_classes.get(c, ("Vanguard", Vanguard))
         player = hero[1](name)
         game.add_player(player)
         
-        print(f"\n{player.name} the {player.player_class}")
+        print(f"\n✨ {player.name} the {player.player_class} ✨")
         print(f"HP: {player.attribute.health} | ATK: {player.attribute.attack} | DEF: {player.attribute.defense}")
-        print(f"Starting Base Weapon: {player.weapon.name} ({player.weapon.damage} base ATK)")
-        print("⚠️  You must buy weapons from the shop with gold earned in battle!")
+        print(f"Starting Weapon: {player.weapon.name} (+{player.weapon.damage} ATK) - FREE")
+        
+        if mode == 1:
+            print("⚠️  SINGLE PLAYER MODE:")
+            print("   - Defeat enemies to earn gold")
+            print("   - Buy new weapons in the shop after each tower")
+            print("   - Choose 2-3 weapons to equip (based on gold earned)")
+            print("   - Equipped weapons stack their ATK bonuses!\n")
+        else:
+            print("⚠️  Defeat enemies to earn gold, then buy more weapons!\n")
     
     print("\n⚔️  THE PURIFICATION BEGINS  ⚔️\n")
     game.play()
